@@ -53,7 +53,7 @@ namespace AvP.TicTacToe.Core
             => board.WithCellIds().AllVectors()
                 .Select(vector =>  // TODO: Craving fmap.
                     {
-                        Maybe<PlayerId?> winner = vector.Select(o => o.Item2).Uniform();
+                        Maybe<PlayerId?> winner = vector.Select(o => o.Item2).Consensus();
                         return Maybe.If(
                             winner.HasValue  // Was the vector uniform?
                                 && winner.Value.HasValue,  // Discard vectors of empty cells.
