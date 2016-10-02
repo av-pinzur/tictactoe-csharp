@@ -53,9 +53,10 @@ namespace AvP.TicTacToe.Core
             => board.WithCellIds().AllVectors()
                 .Select(axis =>
                     {
-                        Maybe<PlayerId?> winner = axis.Select(o => o.Item2).AllEqual();
+                        Maybe<PlayerId?> winner = axis.Select(o => o.Item2).Uniform();
                         return Maybe.If(
-                            winner.HasValue && winner.Value.HasValue,
+                            winner.HasValue  // Was the vector uniform?
+                                && winner.Value.HasValue,  // Discard vectors of empty cells.
                             () => Tuple.Create(winner.Value.Value, axis.Select(o => o.Item1)));
                     })
                 .SingleOrDefault(win => win.HasValue);
