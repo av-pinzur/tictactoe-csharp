@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AvP.Joy;
 using AvP.Joy.Enumerables;
 
@@ -10,13 +8,15 @@ namespace AvP.TicTacToe.Core
 {
     public static class ComputerPlayer
     {
-        public static CellId RandomMove(Game game)
+        public static Func<Game, CellId> RandomMove(Random rnd) 
+            => (Game game) =>
         {
-            var allCellIds = BoardDescriptor.CellIds.SelectMany(F.Id);
-            var remainingCellIds = allCellIds.Except(game.MoveHistory.Select(o => o.Item1));
+            var remainingCellIds = BoardDescriptor.CellIds.SelectMany(F.Id)
+                .Except(game.MoveHistory.Select(o => o.Item1));
 
-            return remainingCellIds.Nth(new Random().Next(remainingCellIds.Count()));
-        }
+            return remainingCellIds.Nth(
+                rnd.Next(remainingCellIds.Count()));
+        };
 
         public static CellId NaiveMove(Game game)
         {

@@ -52,7 +52,7 @@ namespace AvP.TicTacToe.UI.Console {
                 var playerType = Con.ReadLine().Trim();
                 if (playerType.IsAmong("1", "2", "3", "4"))
                     return playerType == "1" ? _ => CellId.Parse(Con.ReadLine())
-                        : playerType == "2" ? ComputerPlayer.RandomMove
+                        : playerType == "2" ? ComputerPlayer.RandomMove(new Random())
                         : playerType == "3" ? ComputerPlayer.NaiveMove
                         : (Func<Game, CellId>) ComputerPlayer.SmartMove;
 
