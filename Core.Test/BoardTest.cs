@@ -12,7 +12,9 @@ namespace AvP.TicTacToe.Core.Test
         [TestMethod]
         public void TestAllAxes()
         {
-            var emptyBoard = BoardHelper.AllRows.Select(row => BoardHelper.AllCols.Select(col => Tuple.Create(new Cell(row, col), default(PlayerId?))));
+            var emptyBoard = BoardDescriptor.CellIds.Select(cellRow 
+                => cellRow.Select(cell 
+                    => Tuple.Create(cell, default(PlayerId?))));
 
             Assert.AreEqual(
                 new[]{
@@ -27,7 +29,7 @@ namespace AvP.TicTacToe.Core.Test
                         new[] { "C1", "C2", "C3" },
 
                         new[] { "A3", "B2", "C1" }}
-                    .Select(axis => axis.Select(o => Tuple.Create(Cell.Parse(o), default(PlayerId?))))
+                    .Select(axis => axis.Select(o => Tuple.Create(CellId.Parse(o), default(PlayerId?))))
                     .ToListDeep()
                     .AsValueSetDeep(),
                 EnumerableSquaredExtensions.AllVectors(emptyBoard)

@@ -10,9 +10,9 @@ namespace AvP.TicTacToe.Core
     {
         private const byte SIZE = 3;
 
-        private readonly IEnumerable<Cell> rawMoveHistory;
+        private readonly IEnumerable<CellId> rawMoveHistory;
 
-        public Game(IEnumerable<Cell> rawMoveHistory = null)
+        public Game(IEnumerable<CellId> rawMoveHistory = null)
         {
             rawMoveHistory = rawMoveHistory.OrEmpty();
             if (!rawMoveHistory.IsDistinct())
@@ -21,16 +21,16 @@ namespace AvP.TicTacToe.Core
             this.rawMoveHistory = rawMoveHistory;
 
             MoveHistory = rawMoveHistory.Select((cell, index)
-                => Tuple.Create(cell, PlayerByMoveIndex(index))).ToList();
+                => Tuple.Create(cell, PlayerByMoveIndex(index)))
+                .ToList().AsValueList();
 
-            Board = BoardHelper.AllRows
-                .Select(row => BoardHelper.AllCols
-                    .Select(col => MoveHistory
-                        .Where(move => new Cell(row, col).Equals(move.Item1))
+            Board = BoardDescriptor.CellIds.Select(cellRow 
+                => cellRow.Select(cell 
+                    => MoveHistory
+                        .Where(move => cell.Equals(move.Item1))
                         .Select(move => (PlayerId?) move.Item2)
-                        .SingleOrDefault())
-                    .ToList())
-                .ToList();
+                        .SingleOrDefault()))
+                .ToListDeep().AsValueListDeep();
 
             var win = FindWin(Board);
             Status = win.HasValue 
@@ -40,28 +40,28 @@ namespace AvP.TicTacToe.Core
                 : (GameStatus) new GameStatus.Drawn();
         }
 
-        public IReadOnlyList<Tuple<Cell, PlayerId>> MoveHistory { get; }
+        public ValueList<Tuple<CellId, PlayerId>> MoveHistory { get; }
 
-        public IReadOnlyList<IReadOnlyList<PlayerId?>> Board { get; }
+        public ValueList<ValueList<PlayerId?>> Board { get; }
 
         public GameStatus Status { get; }
 
         private static PlayerId PlayerByMoveIndex(int moveIndex) => (PlayerId) (moveIndex % 2);
 
-        private static Maybe<Tuple<PlayerId, IEnumerable<Cell>>> FindWin(
+        private static Maybe<Tuple<PlayerId, IEnumerable<CellId>>> FindWin(
             IReadOnlyList<IReadOnlyList<PlayerId?>> board)
             => board.WithCellIds().AllVectors()
-                .Select(axis =>
+                .Select(vector =>  // TODO: Craving fmap.
                     {
-                        Maybe<PlayerId?> winner = axis.Select(o => o.Item2).Uniform();
+                        Maybe<PlayerId?> winner = vector.Select(o => o.Item2).Uniform();
                         return Maybe.If(
                             winner.HasValue  // Was the vector uniform?
                                 && winner.Value.HasValue,  // Discard vectors of empty cells.
-                            () => Tuple.Create(winner.Value.Value, axis.Select(o => o.Item1)));
+                            () => Tuple.Create(winner.Value.Value, vector.Select(o => o.Item1)));
                     })
-                .SingleOrDefault(win => win.HasValue);
+                .FirstOrDefault(win => win.HasValue);
 
-        public Game Play(Cell cell)
+        public Game Play(CellId cell)
         {
             if (Status.IsComplete)
                 throw new InvalidOperationException("The current game is complete.");

@@ -11,12 +11,12 @@ namespace AvP.TicTacToe.Core.Test
         public void TestStatus()
         {
             var setup = new Game()
-                .Play(Cell.Parse("A1"))
-                .Play(Cell.Parse("C1"))
-                .Play(Cell.Parse("A3"))
-                .Play(Cell.Parse("A2"))
-                .Play(Cell.Parse("C3"))
-                .Play(Cell.Parse("b2"));
+                .Play(CellId.Parse("A1"))
+                .Play(CellId.Parse("C1"))
+                .Play(CellId.Parse("A3"))
+                .Play(CellId.Parse("A2"))
+                .Play(CellId.Parse("C3"))
+                .Play(CellId.Parse("b2"));
 
             Assert.AreEqual(
                 new GameStatus.Ready(
@@ -26,15 +26,15 @@ namespace AvP.TicTacToe.Core.Test
             Assert.AreEqual(
                 new GameStatus.Won(
                     PlayerId.X,
-                    new[] { Cell.Parse("A3"), Cell.Parse("B3"), Cell.Parse("C3") }),
-                setup.Play(Cell.Parse("b3"))
+                    new[] { CellId.Parse("A3"), CellId.Parse("B3"), CellId.Parse("C3") }),
+                setup.Play(CellId.Parse("b3"))
                     .Status);
 
             Assert.AreEqual(
                 new GameStatus.Drawn(),
-                setup.Play(Cell.Parse("b1"))
-                    .Play(Cell.Parse("b3"))
-                    .Play(Cell.Parse("c2"))
+                setup.Play(CellId.Parse("b1"))
+                    .Play(CellId.Parse("b3"))
+                    .Play(CellId.Parse("c2"))
                     .Status);
         }
     }

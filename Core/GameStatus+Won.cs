@@ -9,7 +9,7 @@ namespace AvP.TicTacToe.Core
     {
         public sealed class Won : GameStatus
         {
-            public Won(PlayerId winner, IEnumerable<Cell> winningCells)
+            public Won(PlayerId winner, IEnumerable<CellId> winningCells)
             {
                 if (null == winningCells) throw new ArgumentNullException(nameof(winningCells));
 
@@ -19,7 +19,7 @@ namespace AvP.TicTacToe.Core
 
             public override bool IsComplete { get { return true; } }
             public PlayerId Winner { get; }
-            public ValueSet<Cell> WinningCells { get; }
+            public ValueSet<CellId> WinningCells { get; }
 
             public override int GetHashCodeImpl()  // TODO: Improve has code algorithm.
                 => typeof(Won).GetHashCode() 

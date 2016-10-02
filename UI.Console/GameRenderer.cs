@@ -9,6 +9,9 @@ namespace AvP.TicTacToe.UI.Console
 {
     public static class GameRenderer
     {
+        private static readonly string NewLine = Environment.NewLine;
+        private static readonly string NewLineX2 = NewLine + NewLine;
+
         public static string Render(this Game game)
         {
             var boardLines = RenderBoard(game.Board).Lines();
@@ -18,43 +21,51 @@ namespace AvP.TicTacToe.UI.Console
             
             return boardLines.ZipAll(historyLines, (bLine, hLine) 
                     => bLine.ValueOrDefault(boardFiller)
-                        + "  "
+                        + "   "
                         + hLine.ValueOrDefault(string.Empty))
-                    .Join(Environment.NewLine)
-                + Environment.NewLine
-                + Environment.NewLine
-                + RenderStatus(game.Status);
+                    .Join(NewLine)
+                + NewLineX2 + RenderStatus(game.Status);
         }
 
-        private static string RenderMoveHistory(IEnumerable<Tuple<Cell, PlayerId>> moveHistory)
-            => string.Join(Environment.NewLine,
+        private static string RenderMoveHistory(IEnumerable<Tuple<CellId, PlayerId>> moveHistory)
+            => string.Join(NewLine,
                 moveHistory.Select(RenderMove));
 
-        private static string RenderMove(Tuple<Cell, PlayerId> move)
+        private static string RenderMove(Tuple<CellId, PlayerId> move)
             => move.Item2 + " played at " + move.Item1 + ".";
 
         private static string RenderBoard(IReadOnlyList<IReadOnlyList<PlayerId?>> board)
-            => string.Join(Environment.NewLine,
-                board.Select(RenderBoardRow)
-                    .Interpose(RenderBoardRowSeparator(board.First().Count)));
+            => string.Join(NewLine,
+                RenderBoardHeader(board.First().Count).FollowedBy(
+                    board.Select((o, i) => RenderBoardRow(o, i))
+                        .Interpose(RenderBoardRowSeparator(board.First().Count))));
 
-        private static string RenderBoardRow(IEnumerable<PlayerId?> row)
-            => string.Join("|", row.Select(id => id == null ? "   " : $" {id} "));
+        private static string RenderBoardHeader(int columnCount)
+            => "   " 
+                + string.Join(" ", 
+                    BoardDescriptor.ColumnIds.Select(id => $" {id.GetDescription()} ")) 
+                + " ";
+
+        private static string RenderBoardRow(IEnumerable<PlayerId?> row, int offset)
+            => $" {BoardDescriptor.RowIds.Nth(offset)} " 
+                + string.Join("|", 
+                    row.Select(id => id == null ? "   " : $" {id} ")) 
+                + " ";
 
         private static string RenderBoardRowSeparator(int columnCount)
-            => string.Join("+", Enumerable.Repeat("---", columnCount));
+            => "   " 
+                + string.Join("+", 
+                    Enumerable.Repeat("---", columnCount)) 
+                + " ";
 
         private static string RenderStatus(GameStatus status)
         {
             var asReady = status as GameStatus.Ready;
             var asWon = status as GameStatus.Won;
             return asReady != null ?
-                        string.Format("It's your move, {0}'s. What'll it be (e.g., A2/C3)? ", asReady.NextPlayer)
+                        $"It's your move, {asReady.NextPlayer}'s. What'll it be (e.g., A2/C3)? "
                 : asWon != null ?
-                        string.Format("That's a win, {0}'s. Congrats!{1}Better luck next time, {2}'s.", 
-                            asWon.Winner, 
-                            Environment.NewLine, 
-                            asWon.Winner.Opponent())
+                        $"That's a win, {asWon.Winner}'s. Congrats!{NewLine}Better luck next time, {asWon.Winner.Opponent()}'s."
                 : // GameStatus.Drawn
                         "Cat's game! Srsly?";
         }

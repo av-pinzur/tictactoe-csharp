@@ -41,11 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComputerPlayer.cs" />
     <Compile Include="EnumerableSquaredExtensions.cs" />
-    <Compile Include="Cell.cs" />
-    <Compile Include="BoardCol.cs" />
-    <Compile Include="BoardHelper.cs" />
-    <Compile Include="BoardRow.cs" />
+    <Compile Include="CellId.cs" />
+    <Compile Include="ColumnId.cs" />
+    <Compile Include="BoardDescriptor.cs" />
+    <Compile Include="RowId.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameStatus+Drawn.cs" />
     <Compile Include="GameStatus+Won.cs" />

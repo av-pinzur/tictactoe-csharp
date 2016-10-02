@@ -4,12 +4,12 @@ using AvP.Joy;
 
 namespace AvP.TicTacToe.Core
 {
-    public struct Cell : IComparable<Cell>, IEquatable<Cell>
+    public struct CellId : IComparable<CellId>, IEquatable<CellId>
     {
-        public BoardRow Row { get; }
-        public BoardCol Col { get; }
+        public RowId Row { get; }
+        public ColumnId Col { get; }
 
-        public Cell(BoardRow row, BoardCol col)
+        public CellId(RowId row, ColumnId col)
         {
             if (!row.IsDefined()) throw new ArgumentOutOfRangeException(nameof(row));
             if (!col.IsDefined()) throw new ArgumentOutOfRangeException(nameof(col));
@@ -18,23 +18,11 @@ namespace AvP.TicTacToe.Core
             Col = col;
         }
 
-        public static readonly Cell A1 = new Cell(BoardRow.A, BoardCol.One);
-        public static readonly Cell A2 = new Cell(BoardRow.A, BoardCol.Two);
-        public static readonly Cell A3 = new Cell(BoardRow.A, BoardCol.Three);
-
-        public static readonly Cell B1 = new Cell(BoardRow.B, BoardCol.One);
-        public static readonly Cell B2 = new Cell(BoardRow.B, BoardCol.Two);
-        public static readonly Cell B3 = new Cell(BoardRow.B, BoardCol.Three);
-
-        public static readonly Cell C1 = new Cell(BoardRow.C, BoardCol.One);
-        public static readonly Cell C2 = new Cell(BoardRow.C, BoardCol.Two);
-        public static readonly Cell C3 = new Cell(BoardRow.C, BoardCol.Three);
-
         #region (Try)Parse, ToString
 
-        public static Cell Parse(string value)
+        public static CellId Parse(string value)
         {
-            Cell result;
+            CellId result;
             string explanation;
             if (TryParse(value, out result, out explanation))
                 return result;
@@ -42,40 +30,40 @@ namespace AvP.TicTacToe.Core
                 throw new ArgumentException(explanation);
         }
 
-        public static bool TryParse(string value, out Cell result)
+        public static bool TryParse(string value, out CellId result)
         {
             string explanation;
             return TryParse(value, out result, out explanation);
         }
 
-        private static bool TryParse(string value, out Cell result, out string explanation)
+        private static bool TryParse(string value, out CellId result, out string explanation)
         {
             // Discard whitespace & punctuation.
             var letters = value.Where(char.IsLetter).ToList();
             var digits = value.Where(char.IsDigit).ToList();
 
-            BoardRow row;
-            BoardCol col;
+            RowId row;
+            ColumnId col;
             if (letters.Count == 1 && digits.Count == 1 
                 && TryParseRow(letters[0], out row) 
                 && TryCastCol(digits[0].ToDigit(), out col))
             {
-                result = new Cell(row, col);
+                result = new CellId(row, col);
                 explanation = null;
                 return true;
             }
 
-            result = A1;
+            result = default(CellId);
             explanation = "The specified value does not seem to identify a cell.";
             return false;
         }
 
-        private static bool TryParseRow(char value, out BoardRow result)
+        private static bool TryParseRow(char value, out RowId result)
             => Enum.TryParse(value.ToString().ToUpperInvariant(), out result);
 
-        private static bool TryCastCol(int value, out BoardCol result)
+        private static bool TryCastCol(int value, out ColumnId result)
         {
-            result = (BoardCol) value;
+            result = (ColumnId) value;
             return result.IsDefined();
         }
 
@@ -85,32 +73,32 @@ namespace AvP.TicTacToe.Core
         #endregion
         #region CompareTo, Equals, etc.
 
-        public int CompareTo(Cell other)
+        public int CompareTo(CellId other)
         {
             var rowResult = Row.CompareTo(other.Row);
             return (rowResult != 0) ? rowResult
                 : Col.CompareTo(other.Col);
         }
 
-        public bool Equals(Cell other)
+        public bool Equals(CellId other)
             => Row.Equals(other.Row) && Col.Equals(other.Col);
 
         public override bool Equals(object obj)
-            => obj is Cell && Equals((Cell) obj);
+            => obj is CellId && Equals((CellId) obj);
 
         public override int GetHashCode()
             => Row.GetHashCode() ^ Col.GetHashCode();
 
-        public static bool operator ==(Cell x, Cell y)
+        public static bool operator ==(CellId x, CellId y)
             => x.Equals(y);
 
-        public static bool operator !=(Cell x, Cell y)
+        public static bool operator !=(CellId x, CellId y)
             => !(x == y);
 
-        public static bool operator >(Cell x, Cell y)
+        public static bool operator >(CellId x, CellId y)
             => x.CompareTo(y) > 0;
 
-        public static bool operator <(Cell x, Cell y)
+        public static bool operator <(CellId x, CellId y)
             => x.CompareTo(y) < 0;
 
         #endregion
