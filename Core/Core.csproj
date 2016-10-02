@@ -41,7 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EnumerableSquaredExtensions.cs" />
+    <Compile Include="Cell.cs" />
+    <Compile Include="BoardCol.cs" />
+    <Compile Include="BoardHelper.cs" />
+    <Compile Include="BoardRow.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="GameStatus+Drawn.cs" />
+    <Compile Include="GameStatus+Won.cs" />
+    <Compile Include="GameStatus+Ready.cs" />
+    <Compile Include="GameStatus.cs" />
+    <Compile Include="PlayerId.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

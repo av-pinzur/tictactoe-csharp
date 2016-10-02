@@ -54,6 +54,16 @@
     <Compile Include="GameRendererTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{9DC7EEFC-816D-4917-81AB-1DCFDC2435E0}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UI.Console\UI.Console.csproj">
+      <Project>{EB591F9D-86B9-49EE-BF16-ED02F3433276}</Project>
+      <Name>UI.Console</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

@@ -55,6 +55,17 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GameTest.cs" />
+    <Compile Include="BoardTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\JoySharp\Joy\Joy.csproj">
+      <Project>{BF5B58F1-1B39-4734-A3E0-B552A9F31B99}</Project>
+      <Name>Joy</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{9DC7EEFC-816D-4917-81AB-1DCFDC2435E0}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
