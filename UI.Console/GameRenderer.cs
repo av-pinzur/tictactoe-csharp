@@ -9,19 +9,19 @@ namespace AvP.TicTacToe.UI.Console
 {
     public static class GameRenderer
     {
-        public static string Render(Game game)
+        public static string Render(this Game game)
         {
-            var bLines = RenderBoard(game.Board).Lines();
-            var boardFiller = new string(' ', bLines.First().Length);
-            return bLines.ZipAll(
-                    RenderMoveHistory(
-                        game.MoveHistory).Lines(),
-                        (bLine, hLine) 
-                            => bLine.ValueOrDefault(boardFiller)
-                                + "  "
-                                + hLine.ValueOrDefault(string.Empty)
-                                + Environment.NewLine)
-                .Join(string.Empty)
+            var boardLines = RenderBoard(game.Board).Lines();
+            var boardFiller = new string(' ', boardLines.First().Length);
+
+            var historyLines = RenderMoveHistory(game.MoveHistory).Lines();
+            
+            return boardLines.ZipAll(historyLines, (bLine, hLine) 
+                    => bLine.ValueOrDefault(boardFiller)
+                        + "  "
+                        + hLine.ValueOrDefault(string.Empty))
+                    .Join(Environment.NewLine)
+                + Environment.NewLine
                 + Environment.NewLine
                 + RenderStatus(game.Status);
         }
@@ -46,12 +46,15 @@ namespace AvP.TicTacToe.UI.Console
 
         private static string RenderStatus(GameStatus status)
         {
-            var asAwaiting = status as GameStatus.Ready;
+            var asReady = status as GameStatus.Ready;
             var asWon = status as GameStatus.Won;
-            return asAwaiting != null ?
-                        @"It's your move, {asAwaiting.NextPlayer}'s. What'll it be (e.g., x,y)?"
+            return asReady != null ?
+                        string.Format("It's your move, {0}'s. What'll it be (e.g., A2/C3)? ", asReady.NextPlayer)
                 : asWon != null ?
-                        @"That's a win, {asWon.Winner}'s. Congrats! Better luck next time, {asWon.Winner.Opponent()}'s."
+                        string.Format("That's a win, {0}'s. Congrats!{1}Better luck next time, {2}'s.", 
+                            asWon.Winner, 
+                            Environment.NewLine, 
+                            asWon.Winner.Opponent())
                 : // GameStatus.Drawn
                         "Cat's game! Srsly?";
         }

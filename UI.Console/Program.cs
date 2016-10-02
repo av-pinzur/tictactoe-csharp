@@ -1,27 +1,38 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
+using Con = System.Console;
 using AvP.TicTacToe.Core;
 
-namespace AvP.TicTacToe.UI.Console
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            var game = new Game()
-                .Play(Cell.Parse("A1"))
-                .Play(Cell.Parse("C1"))
-                .Play(Cell.Parse("A3"))
-                .Play(Cell.Parse("A2"))
-                .Play(Cell.Parse("C3"))
-                .Play(Cell.Parse("b2"))
-                .Play(Cell.Parse("b3"));
-            System.Console.WriteLine(GameRenderer.Render(game));
-            System.Console.ReadLine();
+namespace AvP.TicTacToe.UI.Console {
+    public static class Program {
+        private static readonly string N = Environment.NewLine;
+        private static readonly string NN = N + N;
+
+        public static void Main(string[] args) {
+            Con.WriteLine("Welcome to Av's C# Tic-Tac-Toe!");
+            
+            do {
+                var game = new Game();
+                do {
+                    Con.Write(NN + game.Render());
+
+                    bool played = false;
+                    do {
+                        try {
+                            game = game.Play(Cell.Parse(Con.ReadLine()));
+                            played = true;
+                        }
+                        catch (Exception e) {
+                            Con.Write("Sorry! " + e.Message + " Please try again: ");
+                        }
+                    } while (!played);
+
+                } while (!game.Status.IsComplete);
+
+                Con.Write(game.Render());
+                Con.Write(NN + "Play again (y/n)? ");
+            } while (Con.ReadLine().Trim().ToLowerInvariant() == "y");
+
+            Con.WriteLine("Thanks for playing Av's C# Tic-Tac-Toe!");
         }
     }
 }
