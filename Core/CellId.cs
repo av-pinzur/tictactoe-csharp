@@ -87,7 +87,8 @@ namespace AvP.TicTacToe.Core
             => obj is CellId && Equals((CellId) obj);
 
         public override int GetHashCode()
-            => Row.GetHashCode() ^ Col.GetHashCode();
+            => unchecked (Row.GetHashCode()
+                    * 397 ^ Col.GetHashCode());
 
         public static bool operator ==(CellId x, CellId y)
             => x.Equals(y);

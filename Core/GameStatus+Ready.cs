@@ -15,8 +15,8 @@ namespace AvP.TicTacToe.Core
             public PlayerId NextPlayer { get; }
 
             public override int GetHashCodeImpl()  // TODO: Improve has code algorithm.
-                => typeof(Ready).GetHashCode()
-                    ^ NextPlayer.GetHashCode();
+                => unchecked(typeof(Ready).GetHashCode()
+                    * 397 ^ NextPlayer.GetHashCode());
 
             public override bool Equals(GameStatus other)
             {

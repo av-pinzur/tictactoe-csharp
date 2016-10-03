@@ -22,9 +22,9 @@ namespace AvP.TicTacToe.Core
             public ValueSet<CellId> WinningCells { get; }
 
             public override int GetHashCodeImpl()  // TODO: Improve has code algorithm.
-                => typeof(Won).GetHashCode() 
-                    ^ Winner.GetHashCode()
-                    ^ WinningCells.GetHashCode();
+                => unchecked(typeof(Won).GetHashCode()
+                    * 397 ^ Winner.GetHashCode()
+                    * 397 ^ WinningCells.GetHashCode());
 
             public override bool Equals(GameStatus other)
             {
