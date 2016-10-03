@@ -13,7 +13,7 @@ namespace AvP.TicTacToe.UI.Console {
             Con.WriteLine("Welcome to Av's C# Tic-Tac-Toe!");
 
             do {
-                Con.Write(NewLineX2 + $"First, please select a player type for {PlayerId.X}s (1 = Human; 2 = Dopey Computer; 3 = Naive Computer; 4 = Smart Computer): ");
+                Con.Write(NewLineX2 + $"First, please select a player type for {PlayerId.X}s{NewLine} (1 = Human; 2 = Dopey Computer; 3 = Naive Computer; 4 = Smart Computer): ");
                 var playerX = GetPlayerType();
                 Con.Write(NewLine + $"Great! Now for {PlayerId.O}s: ");
                 var playerY = GetPlayerType();
@@ -53,8 +53,8 @@ namespace AvP.TicTacToe.UI.Console {
                 if (playerType.IsAmong("1", "2", "3", "4"))
                     return playerType == "1" ? _ => CellId.Parse(Con.ReadLine())
                         : playerType == "2" ? ComputerPlayer.RandomMove(new Random())
-                        : playerType == "3" ? ComputerPlayer.NaiveMove
-                        : (Func<Game, CellId>) ComputerPlayer.SmartMove;
+                        : playerType == "3" ? ComputerPlayer.NaiveMove(new Random())
+                        : (Func<Game, CellId>) ComputerPlayer.SmartMove(new Random());
 
                 Con.Write("We're going to need a real answer ;-). ");
             } while (true);
