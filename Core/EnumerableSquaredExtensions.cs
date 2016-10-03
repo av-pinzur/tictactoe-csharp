@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AvP.Joy.Enumerables;
 
@@ -29,7 +28,7 @@ namespace AvP.TicTacToe.Core
                 .Concat(source.Rotate90().HorizontalAndDownhillVectors());
 
         #endregion
-        #region Rotate~
+        #region Rotate~, AllRotations
 
         public static IEnumerable<IEnumerable<T>> Rotate90<T>(
             this IEnumerable<IEnumerable<T>> source)
@@ -43,24 +42,48 @@ namespace AvP.TicTacToe.Core
             this IEnumerable<IEnumerable<T>> source)
             => source.Rotate90().Rotate180();
 
-        public static IEnumerable<IEnumerable<T>> RotateBack90<T>(
+        public static IEnumerable<IEnumerable<IEnumerable<T>>> Rotations<T>(
             this IEnumerable<IEnumerable<T>> source)
-            => source.Rotate270();
-
-        public static IEnumerable<IEnumerable<T>> RotateBack270<T>(
-            this IEnumerable<IEnumerable<T>> source)
-            => source.Rotate90();
+            => new[] {
+                source.Rotate90(),
+                source.Rotate180(),
+                source.Rotate270() };
 
         #endregion
-        #region Flip~
+        #region Reflect~, Reflections
 
-        public static IEnumerable<IEnumerable<T>> FlipHorizontal<T>(
+        public static IEnumerable<IEnumerable<T>> ReflectHorizontal<T>(
             this IEnumerable<IEnumerable<T>> source)
             => source.Select(o => o.Reverse());
 
-        public static IEnumerable<IEnumerable<T>> FlipVertical<T>(
+        public static IEnumerable<IEnumerable<T>> ReflectVertical<T>(
             this IEnumerable<IEnumerable<T>> source)
             => source.Reverse();
+
+        public static IEnumerable<IEnumerable<T>> ReflectDownhill<T>(
+            this IEnumerable<IEnumerable<T>> source)
+            => source.ReflectVertical().Rotate90();
+
+        public static IEnumerable<IEnumerable<T>> ReflectUphill<T>(
+            this IEnumerable<IEnumerable<T>> source)
+            => source.ReflectHorizontal().Rotate90();
+
+        public static IEnumerable<IEnumerable<IEnumerable<T>>> Reflections<T>(
+            this IEnumerable<IEnumerable<T>> source)
+            => new[] {
+                source.ReflectHorizontal(),
+                source.ReflectVertical(),
+                source.ReflectDownhill(),
+                source.ReflectUphill() };
+
+        #endregion
+        #region Symmetries
+
+        public static IEnumerable<IEnumerable<IEnumerable<T>>> Symmetries<T>(
+            this IEnumerable<IEnumerable<T>> source)
+            => source.InSingleton()
+                .Concat(source.Rotations())
+                .Concat(source.Reflections());
 
         #endregion
     }

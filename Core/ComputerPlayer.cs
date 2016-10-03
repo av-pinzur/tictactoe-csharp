@@ -27,16 +27,35 @@ namespace AvP.TicTacToe.Core
                     => game.Play(o).WinningOptions().None()).RandomPer(random)
                 ?? game.PlayOptions.RandomPer(random).Value;
 
+        private static Game Canonicalized(this Game game)
+        {
+            var canonicalizedBoard = game.Board.Symmetries()
+                .ToListDeep().AsValueListDeep()
+                .MinBy(EnumerableComparer.ByElementsOrdered(
+                    EnumerableComparer.ByElementsOrdered(
+                        Comparer<PlayerId?>.Default)));
+
+            var playsByPlayer = canonicalizedBoard.WithCellIds().SelectMany(F.Id)
+                .Where(o => o.Item2.HasValue)
+                .GroupBy(o => o.Item2, o => o.Item1).OrderBy(o => o.Key).ToList();
+            return playsByPlayer.Interleave().Aggregate(new Game(), (_game, cellId) => _game.Play(cellId));
+        }
+
         // TODO: (Draw vs Random?!) Don't assume opponent is smart; go for the quickest win (?).
-        private static Func<Game, double> RankPlayResult { get; }
-            = F.Memoize((Game playResult) =>
+        private static double RankPlayResult(Game game)
+            => RankPlayResult_Memoized(game);  // .Canonicalized());
+
+        private static Func<Game, double> RankPlayResult_Memoized { get; }
+            = F.Memoize((Func<Game, double>) RankPlayResult_Impl);
+
+        private static double RankPlayResult_Impl(Game playResult)
         {
             return playResult.Status is GameStatus.Won ? 5
                 : playResult.Status is GameStatus.Drawn ? 0
                 : -1 * playResult.PlayOptions
                     .Select(o => RankPlayResult(playResult.Play(o)))
                     .Max();
-        });
+        }
 
         public static Func<Game, CellId> SmartPlay(Random random)
             => (Game game) 
