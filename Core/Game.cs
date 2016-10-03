@@ -8,16 +8,12 @@ namespace AvP.TicTacToe.Core
 {
     public sealed class Game
     {
-        private const byte SIZE = 3;
-
         private readonly IEnumerable<Tuple<CellId, TimeSpan>> rawPlayHistory;
 
-        public Game(IEnumerable<Tuple<CellId, TimeSpan>> rawPlayHistory = null)
-        {
-            rawPlayHistory = rawPlayHistory.OrEmpty();
-            if (!rawPlayHistory.IsDistinct())
-                throw new ArgumentException("Elements must be unique.", nameof(rawPlayHistory));
+        public Game() : this(Enumerable.Empty<Tuple<CellId, TimeSpan>>()) { }
 
+        private Game(IEnumerable<Tuple<CellId, TimeSpan>> rawPlayHistory)
+        {
             this.rawPlayHistory = rawPlayHistory;
 
             PlayHistory = rawPlayHistory.Select((play, index)
@@ -38,13 +34,16 @@ namespace AvP.TicTacToe.Core
                 : Board.Any(row => row.Contains(null)) 
                         ? new GameStatus.Ready(PlayerByPlayIndex(rawPlayHistory.Count()))
                 : (GameStatus) new GameStatus.Drawn();
+
+            PlayOptions = BoardDescriptor.CellIds.SelectMany(F.Id)
+                .Except(PlayHistory.Select(o => o.Item1))
+                .ToHashSet().AsValueSet();
         }
 
         public ValueList<Tuple<CellId, PlayerId, TimeSpan>> PlayHistory { get; }
-
         public ValueList<ValueList<PlayerId?>> Board { get; }
-
         public GameStatus Status { get; }
+        public ValueSet<CellId> PlayOptions { get; }
 
         private static PlayerId PlayerByPlayIndex(int playIndex) => (PlayerId) (playIndex % 2);
 
@@ -66,7 +65,7 @@ namespace AvP.TicTacToe.Core
             if (Status.IsComplete)
                 throw new InvalidOperationException("The current game is complete.");
 
-            if (rawPlayHistory.Any(play => cell == play.Item1))
+            if (!PlayOptions.Contains(cell))
                 throw new InvalidOperationException("The specified cell has already been played.");
 
             return new Game(rawPlayHistory.Concat(Tuple.Create(cell, thinkTime)));

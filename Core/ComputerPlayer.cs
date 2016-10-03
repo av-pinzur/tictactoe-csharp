@@ -8,13 +8,8 @@ namespace AvP.TicTacToe.Core
 {
     public static class ComputerPlayer
     {
-        private static IEnumerable<CellId> PlayingOptions(this Game game)
-            => BoardDescriptor.CellIds.SelectMany(F.Id)
-                .Except(game.PlayHistory.Select(o => o.Item1))
-                .ToList();
-
         private static IEnumerable<CellId> WinningOptions(this Game game)
-            => game.PlayingOptions().Where(o 
+            => game.PlayOptions.Where(o 
                     => game.Play(o).Status is GameStatus.Won)
                 .ToList();
 
@@ -23,29 +18,29 @@ namespace AvP.TicTacToe.Core
 
         public static Func<Game, CellId> RandomPlay(Random random)
             => (Game game)
-            => game.PlayingOptions().RandomPer(random).Value;
+            => game.PlayOptions.RandomPer(random).Value;
 
         public static Func<Game, CellId> NaivePlay(Random random)
             => (Game game) 
             => game.WinningOptions().RandomPer(random) 
-                ?? game.PlayingOptions().Where(o 
+                ?? game.PlayOptions.Where(o 
                     => game.Play(o).WinningOptions().None()).RandomPer(random)
-                ?? game.PlayingOptions().RandomPer(random).Value;
+                ?? game.PlayOptions.RandomPer(random).Value;
 
-        private static double RankOption(Game game, CellId option)
+        private static double RankPlayOption(Game game, CellId option)
         {
-            var result = game.Play(option);
-            return result.Status is GameStatus.Won ? 5
-                : result.Status is GameStatus.Drawn ? 0
-                : -result.PlayingOptions()
-                    .Select(o => RankOption(result, o))
+            var playResult = game.Play(option);
+            return playResult.Status is GameStatus.Won ? 5
+                : playResult.Status is GameStatus.Drawn ? 0
+                : -1 * playResult.PlayOptions
+                    .Select(o => RankPlayOption(playResult, o))
                     .Max();
         }
 
         public static Func<Game, CellId> SmartPlay(Random random)
             => (Game game) 
-            => game.PlayingOptions()
-                .GroupBy(o => RankOption(game, o))
+            => game.PlayOptions
+                .GroupBy(o => RankPlayOption(game, o))
                 .MaxBy(g => g.Key)
                 .RandomPer(random).Value;
     }
