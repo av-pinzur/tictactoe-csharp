@@ -14,7 +14,7 @@ namespace AvP.TicTacToe.Core
             = Enum.GetValues(typeof(ColumnId)).Cast<ColumnId>();
 
         public static IEnumerable<IEnumerable<CellId>> CellIds { get; }
-            = RowIds.Select(r => ColumnIds.Select(c => new CellId(r, c)));
+            = RowIds.Select(r => ColumnIds.Select(c => new CellId(r, c))).ToListDeep();
 
         #region With/WithoutCellIds
 
