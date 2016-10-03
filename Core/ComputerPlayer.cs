@@ -27,21 +27,21 @@ namespace AvP.TicTacToe.Core
                     => game.Play(o).WinningOptions().None()).RandomPer(random)
                 ?? game.PlayOptions.RandomPer(random).Value;
 
-        private static Func<Game, CellId, double> RankPlayOption { get; }
-            = F.Memoize((Game game, CellId option) =>
+        // TODO: (Draw vs Random?!) Don't assume opponent is smart; go for the quickest win (?).
+        private static Func<Game, double> RankPlayResult { get; }
+            = F.Memoize((Game playResult) =>
         {
-            var playResult = game.Play(option);
             return playResult.Status is GameStatus.Won ? 5
                 : playResult.Status is GameStatus.Drawn ? 0
                 : -1 * playResult.PlayOptions
-                    .Select(o => RankPlayOption(playResult, o))
+                    .Select(o => RankPlayResult(playResult.Play(o)))
                     .Max();
         });
 
         public static Func<Game, CellId> SmartPlay(Random random)
             => (Game game) 
             => game.PlayOptions
-                .GroupBy(o => RankPlayOption(game, o))
+                .GroupBy(o => RankPlayResult(game.Play(o)))
                 .MaxBy(g => g.Key)
                 .RandomPer(random).Value;
     }
