@@ -27,7 +27,8 @@ namespace AvP.TicTacToe.Core
                     => game.Play(o).WinningOptions().None()).RandomPer(random)
                 ?? game.PlayOptions.RandomPer(random).Value;
 
-        private static double RankPlayOption(Game game, CellId option)
+        private static Func<Game, CellId, double> RankPlayOption { get; }
+            = F.Memoize((Game game, CellId option) =>
         {
             var playResult = game.Play(option);
             return playResult.Status is GameStatus.Won ? 5
@@ -35,7 +36,7 @@ namespace AvP.TicTacToe.Core
                 : -1 * playResult.PlayOptions
                     .Select(o => RankPlayOption(playResult, o))
                     .Max();
-        }
+        });
 
         public static Func<Game, CellId> SmartPlay(Random random)
             => (Game game) 

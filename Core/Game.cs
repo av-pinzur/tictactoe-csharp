@@ -6,15 +6,15 @@ using AvP.Joy.Enumerables;
 
 namespace AvP.TicTacToe.Core
 {
-    public sealed class Game
+    public sealed class Game : IEquatable<Game>
     {
-        private readonly IEnumerable<Tuple<CellId, TimeSpan>> rawPlayHistory;
+        private readonly ValueList<Tuple<CellId, TimeSpan>> rawPlayHistory;
 
         public Game() : this(Enumerable.Empty<Tuple<CellId, TimeSpan>>()) { }
 
         private Game(IEnumerable<Tuple<CellId, TimeSpan>> rawPlayHistory)
         {
-            this.rawPlayHistory = rawPlayHistory;
+            this.rawPlayHistory = rawPlayHistory.ToList().AsValueList();
 
             PlayHistory = rawPlayHistory.Select((play, index)
                 => Tuple.Create(play.Item1, PlayerByPlayIndex(index), play.Item2))
@@ -69,6 +69,19 @@ namespace AvP.TicTacToe.Core
                 throw new InvalidOperationException("The specified cell has already been played.");
 
             return new Game(rawPlayHistory.Concat(Tuple.Create(cell, thinkTime)));
+        }
+
+        public override int GetHashCode()
+            => rawPlayHistory.GetHashCode();
+
+        public bool Equals(Game other)
+            => rawPlayHistory.Equals(other.rawPlayHistory);
+
+        public override bool Equals(object obj)
+        {
+            var objAs = obj as Game;
+            return objAs != null
+                && Equals(objAs);
         }
     }
 }
