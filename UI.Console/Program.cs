@@ -25,10 +25,11 @@ namespace AvP.TicTacToe.UI.Console {
 
                     players.MoveNext();
                     bool played = false;
+                    var thinkStart = DateTime.UtcNow;
                     do {
                         try {
-                            var playerMove = players.Current(game);
-                            game = game.Play(playerMove);
+                            var playerPlay = players.Current(game);
+                            game = game.Play(playerPlay, DateTime.UtcNow - thinkStart);
                             played = true;
                         }
                         catch (Exception e) {
@@ -46,15 +47,14 @@ namespace AvP.TicTacToe.UI.Console {
             Con.WriteLine("Thanks for playing Av's C# Tic-Tac-Toe!");
         }
 
-        private static Func<Game, CellId> GetPlayerType()
-        {
+        private static Func<Game, CellId> GetPlayerType() {
             do {
                 var playerType = Con.ReadLine().Trim();
                 if (playerType.IsAmong("1", "2", "3", "4"))
                     return playerType == "1" ? _ => CellId.Parse(Con.ReadLine())
-                        : playerType == "2" ? ComputerPlayer.RandomMove(new Random())
-                        : playerType == "3" ? ComputerPlayer.NaiveMove(new Random())
-                        : (Func<Game, CellId>) ComputerPlayer.SmartMove(new Random());
+                        : playerType == "2" ? ComputerPlayer.RandomPlay(new Random())
+                        : playerType == "3" ? ComputerPlayer.NaivePlay(new Random())
+                        : ComputerPlayer.SmartPlay(new Random());
 
                 Con.Write("We're going to need a real answer ;-). ");
             } while (true);

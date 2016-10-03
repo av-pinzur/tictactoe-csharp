@@ -5,12 +5,12 @@ using AvP.Joy;
 using AvP.Joy.Enumerables;
 
 namespace AvP.TicTacToe.Core
-{   // Greg started his test at 7:10.
+{
     public static class ComputerPlayer
     {
         private static IEnumerable<CellId> PlayingOptions(this Game game)
             => BoardDescriptor.CellIds.SelectMany(F.Id)
-                .Except(game.MoveHistory.Select(o => o.Item1))
+                .Except(game.PlayHistory.Select(o => o.Item1))
                 .ToList();
 
         private static IEnumerable<CellId> WinningOptions(this Game game)
@@ -21,11 +21,11 @@ namespace AvP.TicTacToe.Core
         private static CellId? RandomPer(this IEnumerable<CellId> options, Random random)
             => random.NextFromOrDefault(options.Cast<CellId?>());
 
-        public static Func<Game, CellId> RandomMove(Random random)
+        public static Func<Game, CellId> RandomPlay(Random random)
             => (Game game)
             => game.PlayingOptions().RandomPer(random).Value;
 
-        public static Func<Game, CellId> NaiveMove(Random random)
+        public static Func<Game, CellId> NaivePlay(Random random)
             => (Game game) 
             => game.WinningOptions().RandomPer(random) 
                 ?? game.PlayingOptions().Where(o 
@@ -42,8 +42,11 @@ namespace AvP.TicTacToe.Core
                     .Max();
         }
 
-        public static Func<Game, CellId> SmartMove(Random random)
+        public static Func<Game, CellId> SmartPlay(Random random)
             => (Game game) 
-            => game.PlayingOptions().GroupBy(o => RankOption(game, o)).MaxBy(g => g.Key).RandomPer(random).Value;
+            => game.PlayingOptions()
+                .GroupBy(o => RankOption(game, o))
+                .MaxBy(g => g.Key)
+                .RandomPer(random).Value;
     }
 }

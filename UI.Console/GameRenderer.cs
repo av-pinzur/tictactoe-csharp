@@ -17,7 +17,7 @@ namespace AvP.TicTacToe.UI.Console
             var boardLines = RenderBoard(game.Board).Lines();
             var boardFiller = new string(' ', boardLines.First().Length);
 
-            var historyLines = RenderMoveHistory(game.MoveHistory).Lines();
+            var historyLines = RenderPlayHistory(game.PlayHistory).Lines();
             
             return boardLines.ZipAll(historyLines, (bLine, hLine) 
                     => bLine.ValueOrDefault(boardFiller)
@@ -27,12 +27,12 @@ namespace AvP.TicTacToe.UI.Console
                 + NewLineX2 + RenderStatus(game.Status);
         }
 
-        private static string RenderMoveHistory(IEnumerable<Tuple<CellId, PlayerId>> moveHistory)
+        private static string RenderPlayHistory(IEnumerable<Tuple<CellId, PlayerId, TimeSpan>> playHistory)
             => string.Join(NewLine,
-                moveHistory.Select(RenderMove));
+                playHistory.Select(RenderPlay));
 
-        private static string RenderMove(Tuple<CellId, PlayerId> move)
-            => move.Item2 + " played at " + move.Item1 + ".";
+        private static string RenderPlay(Tuple<CellId, PlayerId, TimeSpan> play)
+            => $"{play.Item2} played at {play.Item1} (after {Math.Round(play.Item3.TotalSeconds):F0}s).";
 
         private static string RenderBoard(IReadOnlyList<IReadOnlyList<PlayerId?>> board)
             => string.Join(NewLine,
@@ -65,7 +65,7 @@ namespace AvP.TicTacToe.UI.Console
             return asReady != null ?
                         $"It's your move, {asReady.NextPlayer}'s. What'll it be (e.g., A2/C3)? "
                 : asWon != null ?
-                        $"That's a win, {asWon.Winner}'s. Congrats!{NewLine}Better luck next time, {asWon.Winner.Opponent()}'s."
+                        $"That's a win, {asWon.Winner}'s, along {asWon.WinningCells}. Congrats!{NewLine}Better luck next time, {asWon.Winner.Opponent()}'s."
                 : // GameStatus.Drawn
                         "Cat's game! Srsly?";
         }

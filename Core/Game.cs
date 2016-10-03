@@ -10,25 +10,25 @@ namespace AvP.TicTacToe.Core
     {
         private const byte SIZE = 3;
 
-        private readonly IEnumerable<CellId> rawMoveHistory;
+        private readonly IEnumerable<Tuple<CellId, TimeSpan>> rawPlayHistory;
 
-        public Game(IEnumerable<CellId> rawMoveHistory = null)
+        public Game(IEnumerable<Tuple<CellId, TimeSpan>> rawPlayHistory = null)
         {
-            rawMoveHistory = rawMoveHistory.OrEmpty();
-            if (!rawMoveHistory.IsDistinct())
-                throw new ArgumentException("Elements must be unique.", nameof(rawMoveHistory));
+            rawPlayHistory = rawPlayHistory.OrEmpty();
+            if (!rawPlayHistory.IsDistinct())
+                throw new ArgumentException("Elements must be unique.", nameof(rawPlayHistory));
 
-            this.rawMoveHistory = rawMoveHistory;
+            this.rawPlayHistory = rawPlayHistory;
 
-            MoveHistory = rawMoveHistory.Select((cell, index)
-                => Tuple.Create(cell, PlayerByMoveIndex(index)))
+            PlayHistory = rawPlayHistory.Select((play, index)
+                => Tuple.Create(play.Item1, PlayerByPlayIndex(index), play.Item2))
                 .ToList().AsValueList();
 
             Board = BoardDescriptor.CellIds.Select(cellRow 
                 => cellRow.Select(cell 
-                    => MoveHistory
-                        .Where(move => cell.Equals(move.Item1))
-                        .Select(move => (PlayerId?) move.Item2)
+                    => PlayHistory
+                        .Where(play => cell.Equals(play.Item1))
+                        .Select(play => (PlayerId?) play.Item2)
                         .SingleOrDefault()))
                 .ToListDeep().AsValueListDeep();
 
@@ -36,17 +36,17 @@ namespace AvP.TicTacToe.Core
             Status = win.HasValue 
                         ? new GameStatus.Won(win.Value.Item1, win.Value.Item2)
                 : Board.Any(row => row.Contains(null)) 
-                        ? new GameStatus.Ready(PlayerByMoveIndex(rawMoveHistory.Count()))
+                        ? new GameStatus.Ready(PlayerByPlayIndex(rawPlayHistory.Count()))
                 : (GameStatus) new GameStatus.Drawn();
         }
 
-        public ValueList<Tuple<CellId, PlayerId>> MoveHistory { get; }
+        public ValueList<Tuple<CellId, PlayerId, TimeSpan>> PlayHistory { get; }
 
         public ValueList<ValueList<PlayerId?>> Board { get; }
 
         public GameStatus Status { get; }
 
-        private static PlayerId PlayerByMoveIndex(int moveIndex) => (PlayerId) (moveIndex % 2);
+        private static PlayerId PlayerByPlayIndex(int playIndex) => (PlayerId) (playIndex % 2);
 
         private static Maybe<Tuple<PlayerId, IEnumerable<CellId>>> FindWin(
             IReadOnlyList<IReadOnlyList<PlayerId?>> board)
@@ -61,15 +61,15 @@ namespace AvP.TicTacToe.Core
                     })
                 .FirstOrDefault(win => win.HasValue);
 
-        public Game Play(CellId cell)
+        public Game Play(CellId cell, TimeSpan thinkTime = default(TimeSpan))
         {
             if (Status.IsComplete)
                 throw new InvalidOperationException("The current game is complete.");
 
-            if (rawMoveHistory.Contains(cell))
+            if (rawPlayHistory.Any(play => cell == play.Item1))
                 throw new InvalidOperationException("The specified cell has already been played.");
 
-            return new Game(rawMoveHistory.Concat(cell));
+            return new Game(rawPlayHistory.Concat(Tuple.Create(cell, thinkTime)));
         }
     }
 }
