@@ -57,6 +57,7 @@
     <Compile Include="GameTest.cs" />
     <Compile Include="BoardTest.cs" />
     <Compile Include="EnumerableSquaredExtensionsTest.cs" />
+    <Compile Include="ComputerPlayerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\JoySharp\Joy\Joy.csproj">
