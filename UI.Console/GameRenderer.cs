@@ -32,7 +32,7 @@ namespace AvP.TicTacToe.UI.Console
                 playHistory.Select(RenderPlay));
 
         private static string RenderPlay(Tuple<CellId, PlayerId, TimeSpan> play)
-            => $"{play.Item2} played at {play.Item1} (after {Math.Round(play.Item3.TotalSeconds):F0}s).";
+            => $"{play.Item2} played at {play.Item1} (after {Math.Round(play.Item3.TotalMilliseconds):F0}ms).";
 
         private static string RenderBoard(IReadOnlyList<IReadOnlyList<PlayerId?>> board)
             => string.Join(NewLine,

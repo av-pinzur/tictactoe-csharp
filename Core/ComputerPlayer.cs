@@ -29,31 +29,33 @@ namespace AvP.TicTacToe.Core
 
         private static Game Canonicalized(this Game game)
         {
+            if (game.Status.IsComplete) return game;
+
             var canonicalizedBoard = game.Board.Symmetries()
-                .ToListDeep().AsValueListDeep()
                 .MinBy(EnumerableComparer.ByElementsOrdered(
                     EnumerableComparer.ByElementsOrdered(
                         Comparer<PlayerId?>.Default)));
 
             var playsByPlayer = canonicalizedBoard.WithCellIds().SelectMany(F.Id)
                 .Where(o => o.Item2.HasValue)
-                .GroupBy(o => o.Item2, o => o.Item1).OrderBy(o => o.Key).ToList();
+                .GroupBy(o => o.Item2, o => o.Item1).OrderBy(o => o.Key);
             return playsByPlayer.Interleave().Aggregate(new Game(), (_game, cellId) => _game.Play(cellId));
         }
 
-        // TODO: (Draw vs Random?!) Don't assume opponent is smart; go for the quickest win (?).
-        private static double RankPlayResult(Game game)
-            => RankPlayResult_Memoized(game);  // .Canonicalized());
+        private const int defaultMaxDepth = 10;
 
-        private static Func<Game, double> RankPlayResult_Memoized { get; }
-            = F.Memoize((Func<Game, double>) RankPlayResult_Impl);
+        private static double RankPlayResult(Game game, int maxDepth = defaultMaxDepth, int curDepth = 0)
+            => RankPlayResult_Memoized(game.Canonicalized(), maxDepth, curDepth);
 
-        private static double RankPlayResult_Impl(Game playResult)
+        private static Func<Game, int, int, double> RankPlayResult_Memoized { get; }
+            = F.Memoize((Func<Game, int, int, double>) RankPlayResult_Impl);
+
+        private static double RankPlayResult_Impl(Game playResult, int maxDepth, int curDepth)
         {
-            return playResult.Status is GameStatus.Won ? 5
+            return playResult.Status is GameStatus.Won ? defaultMaxDepth - curDepth
                 : playResult.Status is GameStatus.Drawn ? 0
                 : -1 * playResult.PlayOptions
-                    .Select(o => RankPlayResult(playResult.Play(o)))
+                    .Select(o => RankPlayResult(playResult.Play(o), maxDepth, curDepth + 1))
                     .Max();
         }
 

@@ -32,7 +32,8 @@ namespace AvP.TicTacToe.Core
 
         public static IEnumerable<IEnumerable<T>> Rotate90<T>(
             this IEnumerable<IEnumerable<T>> source)
-            => source.Zip(o => o.Reverse());
+            => source.Zip(o => o.Reverse())
+                .ToListDeep();  // Bug in .Net?
 
         public static IEnumerable<IEnumerable<T>> Rotate180<T>(
             this IEnumerable<IEnumerable<T>> source)
@@ -62,11 +63,11 @@ namespace AvP.TicTacToe.Core
 
         public static IEnumerable<IEnumerable<T>> ReflectDownhill<T>(
             this IEnumerable<IEnumerable<T>> source)
-            => source.ReflectVertical().Rotate90();
+            => source.ReflectHorizontal().Rotate90();
 
         public static IEnumerable<IEnumerable<T>> ReflectUphill<T>(
             this IEnumerable<IEnumerable<T>> source)
-            => source.ReflectHorizontal().Rotate90();
+            => source.ReflectVertical().Rotate90();
 
         public static IEnumerable<IEnumerable<IEnumerable<T>>> Reflections<T>(
             this IEnumerable<IEnumerable<T>> source)
