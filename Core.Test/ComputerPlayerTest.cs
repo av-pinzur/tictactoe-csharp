@@ -38,26 +38,28 @@ namespace AvP.TicTacToe.Core.Test
             return wonStatus != null ? wonStatus.Winner : default(PlayerId?);
         }
 
+        const int deepIterations = 10000;
+
         [TestMethod]
         public void TestSmartVsRandomPlay()
         {
-            var results = PlayGames(10000,
+            var results = PlayGames(deepIterations,
                 ComputerPlayer.SmartPlay(new Random()),
                 ComputerPlayer.RandomPlay(new Random()));
 
             Assert.AreEqual(0, results.GetOrDefault(PlayerId.O, 0));
-            Assert.IsTrue(results[PlayerId.X] / results[Maybe<PlayerId>.None] > .9);
+            Assert.IsTrue(.95 < results[PlayerId.X] / (double) deepIterations);
         }
 
         [TestMethod]
         public void TestRandomVsSmartPlay()
         {
-            var results = PlayGames(10000,
+            var results = PlayGames(deepIterations,
                 ComputerPlayer.RandomPlay(new Random()),
                 ComputerPlayer.SmartPlay(new Random()));
 
             Assert.AreEqual(0, results.GetOrDefault(PlayerId.X, 0));
-            Assert.IsTrue(results[PlayerId.O] / results[Maybe<PlayerId>.None] > .9);
+            Assert.IsTrue(.75 < results[PlayerId.O] / (double) deepIterations);
         }
     }
 }
