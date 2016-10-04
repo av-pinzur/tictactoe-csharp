@@ -24,7 +24,7 @@ namespace AvP.TicTacToe.UI.Console
                         + "   "
                         + hLine.ValueOrDefault(string.Empty))
                     .Join(NewLine)
-                + NewLineX2 + RenderStatus(game.Status);
+                + NewLineX2 + RenderStatus(game.Status) + NewLine;
         }
 
         private static string RenderPlayHistory(IEnumerable<Tuple<CellId, PlayerId, TimeSpan>> playHistory)
@@ -63,7 +63,7 @@ namespace AvP.TicTacToe.UI.Console
             var asReady = status as GameStatus.Ready;
             var asWon = status as GameStatus.Won;
             return asReady != null ?
-                        $"It's your move, {asReady.NextPlayer}'s. What'll it be (e.g., A2/C3)? "
+                        $"It's your move, {asReady.NextPlayer}'s."
                 : asWon != null ?
                         $"That's a win, {asWon.Winner}'s, along {asWon.WinningCells}. Congrats!{NewLine}Better luck next time, {asWon.Winner.Opponent()}'s."
                 : // GameStatus.Drawn

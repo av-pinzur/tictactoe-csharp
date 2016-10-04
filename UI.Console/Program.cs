@@ -27,8 +27,7 @@ namespace AvP.TicTacToe.UI.Console {
                     var readyStatus = ((GameStatus.Ready) game.Status);
                     var playSelector = players[readyStatus.NextPlayer];
 
-                    Con.Write(NewLineX2 + game.Render());
-                    Thread.Sleep(TimeSpan.FromSeconds(1));
+                    Con.Write(NewLine + game.Render());
 
                     bool hasPlayed = false;
                     var thinkStart = DateTime.UtcNow;
@@ -43,6 +42,8 @@ namespace AvP.TicTacToe.UI.Console {
                             Con.Write("Sorry! " + e.Message + " Please try again: ");
                         }
                     } while (!hasPlayed);
+
+                    Thread.Sleep(TimeSpan.FromSeconds(1));
                 };
 
                 Con.Write(NewLineX2 + game.Render());
@@ -57,7 +58,7 @@ namespace AvP.TicTacToe.UI.Console {
             do {
                 var playerType = Con.ReadLine().Trim();
                 if (playerType.IsAmong("1", "2", "3", "4"))
-                    return playerType == "1" ? _ => CellId.Parse(Con.ReadLine())
+                    return playerType == "1" ? _ => { Con.Write("What'll it be (e.g., A2/3C)? "); return CellId.Parse(Con.ReadLine()); }
                         : playerType == "2" ? ComputerPlayer.RandomPlay(new Random())
                         : playerType == "3" ? ComputerPlayer.NaivePlay(new Random())
                         : ComputerPlayer.SmartPlay(new Random());
