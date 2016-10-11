@@ -48,7 +48,7 @@ namespace AvP.TicTacToe.Core.Test
                 ComputerPlayer.RandomPlay(new Random()));
 
             Assert.AreEqual(0, results.GetOrDefault(PlayerId.O, 0));
-            Assert.IsTrue(.95 < results[PlayerId.X] / (double) deepIterations);
+            Assert.AreEqual(1, results[PlayerId.X] / (double) deepIterations, .05);
         }
 
         [TestMethod]
@@ -59,7 +59,7 @@ namespace AvP.TicTacToe.Core.Test
                 ComputerPlayer.SmartPlay(new Random()));
 
             Assert.AreEqual(0, results.GetOrDefault(PlayerId.X, 0));
-            Assert.IsTrue(.75 < results[PlayerId.O] / (double) deepIterations);
+            Assert.AreEqual(1, results[PlayerId.O] / (double) deepIterations, 0.25);
         }
     }
 }
